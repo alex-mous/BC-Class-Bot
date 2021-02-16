@@ -27,7 +27,7 @@ bot.on('ready', () => {
     bot.user.setPresence({
         status: "online",
         activity: {
-            name: process.env.BOT_STATUS || "Development...",
+            name: process.env.BOT_STATUS || "boredom 😞",
             type: process.env.BOT_STATUS_TYPE || "PLAYING"
         }
     });

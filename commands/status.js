@@ -22,10 +22,11 @@ reminders.setSpreadsheet(googleAuth.GOOGLE_SHEET_ID).then(() => reminders.setShe
  */
 let getStatus = async (msg) => {
     let classes = await (reminders.getRows(2, await reminders.getLastRowIndex()));
-    let watchedClasses = "```\t Quarter \t\tClass\t\tItem #\n--------------------------------------------\n";
+    let watchedClasses = "```\t Quarter \t\tClass\t\tItem #\t\t# Seats\n-----------------------------------------------------------\n";
     classes.forEach((cn) => { //Iterate over each user
         if (cn["User IDs"].includes(msg.author.id)) { //Send out reminders to everyone with a higher level
-            watchedClasses += `\t${cn["Quarter Name"].toUpperCase()}\t\t${cn["Class Name"].toUpperCase()}\t\t${cn["Class Number"]}\n`;
+            let noSeats = (cn["Previous Seats"] > 0) ? cn["Previous Seats"] : `${-1*cn["Previous Seats"]} waitlisted`;
+            watchedClasses += `\t${cn["Quarter Name"].toUpperCase()}\t\t${cn["Class Name"].toUpperCase()}\t\t${cn["Class Number"]}\t\t${noSeats}\n`;
         }
     });
     watchedClasses += "```";
