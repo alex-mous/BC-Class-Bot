@@ -1,6 +1,6 @@
 {
-  "name": "techclubbot",
-  "version": "1.2.0",
+  "name": "claswatchbot",
+  "version": "1.0.0",
   "description": "Bellevue College Class Watch Discord Bot",
   "main": "index.js",
   "scripts": {
@@ -9,20 +9,15 @@
   "author": "Alex Mous",
   "license": "MIT",
   "dependencies": {
-    "dblapi.js": "^2.4.1",
-    "discord": "^0.8.2",
+    "axios": "^0.21.1",
     "discord.js": "^12.3.1",
-    "node-nlp": "^4.14.4",
-    "pg": "^8.5.1",
+    "jsdom": "^16.4.0",
+    "log-timestamp": "^0.3.0",
     "simplegooglesheetsjs": "^0.1.4"
   },
   "homepage": "https://github.com/alex-mous/BC-Class-Bot",
   "repository": {
     "type": "git",
     "url": "https://github.com/alex-mous/BC-Class-Bot.git"
-  },
-  "devDependencies": {
-    "axios": "^0.21.1",
-    "jsdom": "^16.4.0"
   }
 }

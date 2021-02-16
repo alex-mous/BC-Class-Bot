@@ -7,6 +7,8 @@
 
 const Discord = require("discord.js");
 const bot = new Discord.Client();
+require("log-timestamp"); //Add log timestamps
+
 
 let commands;
 require("./commands.js").loadCommands((cmds) => {
@@ -83,7 +85,7 @@ bot.login(TOKEN);
 
 /**
  * Get a command from the message (if any)
- * 
+ *
  * @param {Object} msgContentList List of words in message
  * @returns {Command} Returns a Command
  */
@@ -105,7 +107,7 @@ const getCommand = (msgContentList) => {
 
 /**
  * Run a command
- * 
+ *
  * @param {Command} cmd Command object
  * @param {Object} msg Message object
  */
@@ -141,7 +143,7 @@ let runCommand = async (cmd, msg) => {
 
 /**
  * Check the permission of the user sending the message
- * 
+ *
  * @function checkPermission
  * @param {Object} msg Message object
  * @param {String} requiredRole Required role to delete

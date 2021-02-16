@@ -17,7 +17,7 @@ reminders.setSpreadsheet(googleAuth.GOOGLE_SHEET_ID).then(() => reminders.setShe
 
 /**
  * Print out a user's currently watched classes
- * 
+ *
  * @param {Object} msg Message object
  */
 let getStatus = async (msg) => {
@@ -25,6 +25,7 @@ let getStatus = async (msg) => {
     let watchedClasses = "```\t Quarter \t\tClass\t\tItem #\t\t# Seats\n-----------------------------------------------------------\n";
     classes.forEach((cn) => { //Iterate over each user
         if (cn["User IDs"].includes(msg.author.id)) { //Send out reminders to everyone with a higher level
+            if (isNaN(cn["Previous Seats"])) return;
             let noSeats = (cn["Previous Seats"] > 0) ? cn["Previous Seats"] : `${-1*cn["Previous Seats"]} waitlisted`;
             watchedClasses += `\t${cn["Quarter Name"].toUpperCase()}\t\t${cn["Class Name"].toUpperCase()}\t\t${cn["Class Number"]}\t\t${noSeats}\n`;
         }
@@ -36,7 +37,7 @@ let getStatus = async (msg) => {
 
 /**
  * Check class statuses and notify users
- * 
+ *
  * @param {Object} bot Discord bot object
  */
 let checkStatus = async (bot) => {
@@ -60,9 +61,12 @@ let checkStatus = async (bot) => {
         for (let classN of Object.keys(classNotifications[quarter])) {
             let classNums = Object.keys(classNotifications[quarter][classN]);
             let seats = await getSeats(quarter, classN, classNums);
+            if (!seats) {
+              console.log(`WARN: class does not exist for class ${quarter}:${classN}`);
+            }
             for (let i=0; i<seats.length; i++) {
                 let currData = classNotifications[quarter][classN][classNums[i]];
-                if (seats[i] != currData.previousSeats) { //Different number of seats - send out notifictions
+                if (seats[i] != currData.previousSeats && !isNaN(seats[i])) { //Different number of seats - send out notifictions
                     notifyUsers(bot, currData.ids, seats[i], currData.previousSeats, classN, classNums[i]);
                     reminders.setRow(currData.rowNum, { "Previous Seats": seats[i]});
                 }
@@ -73,7 +77,7 @@ let checkStatus = async (bot) => {
 
 /**
  * Notify users given by ids of a the number of seats left (seats)
- * 
+ *
  * @param {Object} bot Discord bot object
  * @param {Array<string>} ids User IDs
  * @param {number} noSeats Number of seats
@@ -94,10 +98,13 @@ const notifyUsers = async (bot, ids, noSeats, prevSeats, className, classNum) =>
             }
         });
     } else {
-        console.error("ERR: no users to notify", className, classNum);
+        console.log("ERR: no users to notify", className, classNum);
         return;
     }
     let msgSeg; //Variable part of message
+    if (isNaN(noSeats)) {
+        msgSeg = `has an **invalid** number of seats. That means that this class is no longer listed or does not exist`;
+    }
     if (noSeats == 0) {
         msgSeg = `is now full (no waitlist information), from ${prevSeats || "?"} seats previously!`;
     } else if (noSeats < 0) {
@@ -110,7 +117,7 @@ const notifyUsers = async (bot, ids, noSeats, prevSeats, className, classNum) =>
 
 /**
  * Add a status for a user
- * 
+ *
  * @param {Object} msg Message object
  */
 let addStatus = async (msg, args) => {
@@ -135,12 +142,17 @@ let addStatus = async (msg, args) => {
             return;
         }
     }
+    let noSeats = (await getSeats(args[0], args[1], [args[2]]));
+    if (noSeats == null || !noSeats[0]) {
+        msg.reply(`Class ${args[1].toUpperCase()}#${args[2]} is invalid. Please check that it exists.`);
+        return;
+    }
     reminders.setRow(lastRow+1, {
-        "User IDs": msg.author.id, 
+        "User IDs": msg.author.id,
         "Quarter Name": args[0],
         "Class Name": args[1],
         "Class Number": args[2],
-        "Previous Seats": (await getSeats(args[0], args[1], [args[2]]))[0]
+        "Previous Seats": noSeats[0]
     }).then(() => { //No user found - add a new row
         console.log(`INFO: added class for user ${msg.author.username}`);
         msg.reply(`Added class ${args[1].toUpperCase()}#${args[2]} and added you as it's sole watcher`);
@@ -149,7 +161,7 @@ let addStatus = async (msg, args) => {
 
 /**
  * Remove a status for a user
- * 
+ *
  * @param {Object} msg Message object
  */
 let removeStatus = async (msg, args) => {
@@ -177,7 +189,7 @@ let removeStatus = async (msg, args) => {
 
 /**
  * Get an array of seats left matching classes in classNums
- * 
+ *
  * @param {*} quarterName Quarter name to check
  * @param {*} className Class name to check
  * @param {*} classNums Class numbers to check (only item numbers in the class name)
@@ -185,16 +197,17 @@ let removeStatus = async (msg, args) => {
  */
 const getSeats = async (quarterName, className, classNums) => {
     let seats = [];
+    console.log(`Getting seats for class ${className}...`);
     let resp;
     try {
         resp = await axios.get(`${BASE_URL}${quarterName}/${className}`);
     } catch (err) {
         console.log("No page found for this name and quarter combination", quarterName, className);
+        return null;
     }
     let dom = new JSDOM(resp.data);
-    console.log(`Getting seats for class ${className}...`);
     for (let classNo of classNums) {
-        console.log(`CHecking class number ${classNo}...`);
+        console.log(`\tChecking class number ${classNo}...`);
         let classList = dom.window.document.querySelectorAll(`td[id^='availability-${classNo}']`);
         if (classList.length > 0) {
             let numSeats = classList[0].textContent.toLowerCase();
@@ -208,6 +221,7 @@ const getSeats = async (quarterName, className, classNums) => {
             }
         } else {
             console.log("No classes found for this name and quarter and number combination", quarterName, className, classNo);
+            seats.push(undefined)
         }
     }
     return seats;
