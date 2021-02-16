@@ -1,7 +1,7 @@
 {
   "name": "techclubbot",
   "version": "1.2.0",
-  "description": "Bellevue College Tech Club Discord Bot",
+  "description": "Bellevue College Class Watch Discord Bot",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -13,11 +13,16 @@
     "discord": "^0.8.2",
     "discord.js": "^12.3.1",
     "node-nlp": "^4.14.4",
+    "pg": "^8.5.1",
     "simplegooglesheetsjs": "^0.1.4"
   },
-  "homepage": "https://github.com/polarpiberry/TechClubBot",
+  "homepage": "https://github.com/alex-mous/BC-Class-Bot",
   "repository": {
     "type": "git",
-    "url": "https://github.com/polarpiberry/TechClubBot.git"
+    "url": "https://github.com/alex-mous/BC-Class-Bot.git"
+  },
+  "devDependencies": {
+    "axios": "^0.21.1",
+    "jsdom": "^16.4.0"
   }
 }

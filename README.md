@@ -1,44 +1,15 @@
-# TechClubBot
-## Bellevue College Tech Club Discord Bot
+# BC ClassWatchBot
+## Bellevue College Class Watch Bot
 
 ### Introduction
 
-This is the Discord bot for the Bellevue College Tech Club. Join the bot development server here: [https://discord.gg/cF7R349](https://discord.gg/cF7R349) and see the Bot's webpage here: [http://techclubbot.herokuapp.com/](http://techclubbot.herokuapp.com/)
+BC ClassWatchBot is a Discord bot designed to monitor Bellevue College classes to get on waitlists and monitor if seats become available. This project is in no way sponsored or endorsed by Bellevue College.
 
 * * *
 
 ### Usage
 
-Access the follow bot help page with !help. All voting commands, as well as those under the Leadership Only heading require the "Leadership" role, with the same permissions as required to execute the commands (such as permission to ban users to use the !ban command).
-
-#### General Commands
-
-| Command        | Description                                                 |
-|----------------|-------------------------------------------------------------|
-| `hi`           | Greetings from the bot                                      |
-| `say`          | Speak up, little one!                                       |
-| `status`       | My status                                                   |
-| `help`         | Show the help                                               |
-| `getminutes MEETING_#`    | Get the meeting minutes (meeting # is the number of meeting prior to the last meeting [e.g. 1 => meeting before last meeting]. No number or 0 for previous meeting) |
-| `calendar MONTH_#` | Print out the meeting calendar and list  for the month number (no month -> current month) |
-| *Leadership Only*  | Commands below can be run by users with the role Leadership only |
-| `vote`         | Create a vote/poll of the channel (enter Voting Mode)       |
-| `selfdestruct` | Self destruct the channel                                   |
-| `ban @USER`    | Ban @USER                                                   |
-| `kick @USER`   | Kick @USER                                                  |
-| `deleteall`    | Delete all messages in channel                              |
-| `setminutes DATE TYPE MINUTES`                              | Set the meeting minutes  |
-| `addmeeting DAY\|MONTH\|YEAR\|TYPE\|TIME_START\|TIME_END`   | Schedule a meeting       |
-| `removemeeting DAY\|MONTH\|YEAR\|TYPE\|TIME_START`          | Un-schedule a meeting    |
-
-#### Voting Mode Commands
-
-| Command                                   | Description                                                 |
-|-------------------------------------------|-------------------------------------------------------------|
-| *Leadership Only*                         | Commands below can be run by users with the role Admin only |
-| `start Option 1\|Option 2\|...\|Option N` | Start the vote with the various options                     |
-| `cancel`                                  | Cancel the vote before it starts                            |
-| `help`                                    | Show the help                                               |
+Access the bot help page with !help.
 
 * * *
 
