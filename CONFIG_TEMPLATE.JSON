@@ -1,0 +1,5 @@
+{
+    "token": "DISCORD_BOT_ID",
+    "channelId": "ID_OF_CHANNEL_FOR_ALERTS",
+    "id": "ID_OF_GOOGLE_SHEET"
+}

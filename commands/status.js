@@ -4,10 +4,10 @@ const sheets = require("simplegooglesheetsjs");
 const googleAuth = require("../GOOGLE_AUTH.js");
 const { JSDOM } = require("jsdom");
 const axios = require("axios");
-
+const config = require("../CONFIG.json");
 
 const BASE_URL = "https://www2.bellevuecollege.edu/classes/";
-const ALERT_CHANNEL = "811008756866744450";
+const ALERT_CHANNEL = config.channelId;
 
 const reminders = new sheets(); //Set up the user reminders
 
@@ -24,7 +24,7 @@ let getStatus = async (msg) => {
     let classes = await (reminders.getRows(2, await reminders.getLastRowIndex()));
     let watchedClasses = "```\t Quarter \t\tClass\t\tItem #\t\t# Seats\n-----------------------------------------------------------\n";
     classes.forEach((cn) => { //Iterate over each user
-        if (cn["User IDs"].includes(msg.author.id)) { //Send out reminders to everyone with a higher level
+        if (cn["User IDs"] && cn["User IDs"].includes(msg.author.id)) { //Send out reminders to everyone with a higher level
             if (isNaN(cn["Previous Seats"])) return;
             let noSeats = (cn["Previous Seats"] > 0) ? cn["Previous Seats"] : `${-1*cn["Previous Seats"]} waitlisted`;
             watchedClasses += `\t${cn["Quarter Name"].toUpperCase()}\t\t${cn["Class Name"].toUpperCase()}\t\t${cn["Class Number"]}\t\t${noSeats}\n`;
@@ -52,7 +52,7 @@ let checkStatus = async (bot) => {
             classNotifications[cn["Quarter Name"]][cn["Class Name"]] = {};
         }
         classNotifications[cn["Quarter Name"]][cn["Class Name"]][cn["Class Number"]] = {
-            ids: cn["User IDs"].split(","), //Add user ids to class number
+            ids: cn["User IDs"] ? cn["User IDs"].split(",") : [], //Add user ids to class number
             previousSeats: cn["Previous Seats"],
             rowNum: i+2 //Store row number to set row values later on
         }
@@ -62,7 +62,8 @@ let checkStatus = async (bot) => {
             let classNums = Object.keys(classNotifications[quarter][classN]);
             let seats = await getSeats(quarter, classN, classNums);
             if (!seats) {
-              console.log(`WARN: class does not exist for class ${quarter}:${classN}`);
+                console.log(`WARN: class does not exist for class ${quarter}:${classN}`);
+                continue;
             }
             for (let i=0; i<seats.length; i++) {
                 let currData = classNotifications[quarter][classN][classNums[i]];
@@ -105,12 +106,18 @@ const notifyUsers = async (bot, ids, noSeats, prevSeats, className, classNum) =>
     if (isNaN(noSeats)) {
         msgSeg = `has an **invalid** number of seats. That means that this class is no longer listed or does not exist`;
     }
+    let prevSeatsMsg = prevSeats;
+    if (prevSeats == 0) {
+        prevSeatsMsg = "no";
+    } else if (prevSeats < 0) {
+        prevSeatsMsg = `${-1*prevSeats} waitlisted`;
+    }
     if (noSeats == 0) {
-        msgSeg = `is now full (no waitlist information), from ${prevSeats || "?"} seats previously!`;
+        msgSeg = `is now full (no waitlist information), from ${prevSeatsMsg || "?"} seats previously!`;
     } else if (noSeats < 0) {
-        msgSeg = `now has ${-1*noSeats} of 5 waitlist seats full, from ${prevSeats || "?"} seats previously!`; //Compensate for "negative" seats
+        msgSeg = `now has ${-1*noSeats} of 5 waitlist seats full, from ${prevSeatsMsg || "?"} seats previously!`; //Compensate for "negative" seats
     } else {
-        msgSeg = `now has ${noSeats} seats left, from ${prevSeats || "?"} seats previously!`;
+        msgSeg = `now has ${noSeats} seats left, from ${prevSeatsMsg || "?"} seats previously!`;
     }
     bot.channels.cache.get(ALERT_CHANNEL).send(`${tagStr} :warning: Class ${className.toUpperCase()}#${classNum} ${msgSeg}`);
 }
@@ -214,7 +221,7 @@ const getSeats = async (quarterName, className, classNums) => {
             if (numSeats.includes("waitlist")) { //Waitlisted class
                 noSeats = -1 * parseInt(numSeats.match(/\d/)[0]);
                 seats.push(noSeats);
-            } else if (numSeats.includes("waitlist")) { //Full class
+            } else if (numSeats.includes("full") || !numSeats.match(/\d+/)) { //Full class
                 seats.push(0);
             } else { //Not full
                 seats.push(parseInt(numSeats.match(/\d+/)[0])); //No more than 99 seats

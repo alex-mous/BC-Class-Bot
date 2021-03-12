@@ -1,7 +1,6 @@
 .env
 node_modules
 package-lock.json
-TOKEN.json
+CONFIG.json
 GOOGLE_AUTH.json
-GOOGLE_SHEET_ID.json
 /static

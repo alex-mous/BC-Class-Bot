@@ -15,7 +15,7 @@ require("./commands.js").loadCommands((cmds) => {
     commands = cmds;
 }); //Load the commands
 
-const TOKEN = process.env.TOKEN || require("./TOKEN.json").token; //Bot login token
+const TOKEN = process.env.TOKEN || require("./CONFIG.json").token; //Bot login token
 
 /**
  * Event handler for startup of Bot
@@ -29,7 +29,7 @@ bot.on('ready', () => {
     bot.user.setPresence({
         status: "online",
         activity: {
-            name: process.env.BOT_STATUS || "boredom 😞",
+            name: process.env.BOT_STATUS || "⌚ing...",
             type: process.env.BOT_STATUS_TYPE || "PLAYING"
         }
     });
